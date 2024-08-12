@@ -25,8 +25,9 @@ fn read_gtkrc(theme_name: &str) -> Result<String, Box<dyn std::error::Error>> {
 }
 
 fn parse_color_scheme(contents: &str) -> HashMap<String, String> {
+    let contents = contents.replace(r"\n", "\n");
     let re = Regex::new(r#"([a-zA-Z_]+):#([0-9a-fA-F]{6})"#).unwrap();
-    re.captures_iter(contents)
+    re.captures_iter(&contents)
         .map(|caps| (caps[1].to_string(), format!("#{}", &caps[2])))
         .collect()
 }
