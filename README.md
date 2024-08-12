@@ -32,5 +32,5 @@ cargo build --release
 Run the program:
 
 ```sh
-./target/release/gtk-read
+./target/release/gtk-theme
 ```
