@@ -48,7 +48,7 @@ jobs:
         shell: bash
         run: |
           # Replace with the name of your binary
-          binary_name="GTK-Color-Scheme-Reader"
+          binary_name="gtk-theme"
 
           dirname="$binary_name-${{ env.VERSION }}-${{ matrix.target }}"
           mkdir "$dirname"
