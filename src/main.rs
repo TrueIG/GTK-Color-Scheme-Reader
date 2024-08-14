@@ -25,10 +25,30 @@ fn read_gtkrc(theme_name: &str) -> Result<String, Box<dyn std::error::Error>> {
 }
 
 fn parse_color_scheme(contents: &str) -> HashMap<String, String> {
-    let contents = contents.replace(r"\n", "\n");
-    let re = Regex::new(r#"([a-zA-Z_]+):#([0-9a-fA-F]{6})"#).unwrap();
-    re.captures_iter(&contents)
-        .map(|caps| (caps[1].to_string(), format!("#{}", &caps[2])))
+    let re = Regex::new(r#"([a-zA-Z_]+):\s*([#0-9a-zA-Z]+)"#).unwrap();
+
+    let mut scheme_contents = String::new();
+    let mut in_scheme = false;
+
+    for line in contents.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with("gtk-color-scheme") {
+            in_scheme = true;
+            if let Some(index) = trimmed.find('=') {
+                scheme_contents.push_str(trimmed[index + 1..].trim());
+            }
+        } else if in_scheme {
+            if trimmed.ends_with('"') {
+                scheme_contents.push_str(&trimmed[..trimmed.len() - 1]);
+                in_scheme = false;
+            } else {
+                scheme_contents.push_str(trimmed);
+            }
+        }
+    }
+    scheme_contents = scheme_contents.replace(r"\n", " ");
+    re.captures_iter(&scheme_contents)
+        .map(|caps| (caps[1].to_string(), caps[2].to_string()))
         .collect()
 }
 
