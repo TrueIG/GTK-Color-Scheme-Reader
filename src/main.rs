@@ -1,8 +1,9 @@
 use regex::Regex;
 use serde::Serialize;
 use std::collections::HashMap;
+use std::env;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 #[derive(Serialize)]
@@ -19,9 +20,18 @@ fn get_current_theme() -> Result<String, Box<dyn std::error::Error>> {
 }
 
 fn read_gtkrc(theme_name: &str) -> Result<String, Box<dyn std::error::Error>> {
-    let path_theme = Path::new("/usr/share/themes/");
-    let theme_path = path_theme.join(theme_name).join("gtk-2.0").join("gtkrc");
+    let mut theme_path = get_gtkrc(&format!("{}{}", "/usr/share/themes/", theme_name));
+    if !theme_path.is_file() {
+        let home_dir = env::var("HOME")?;
+        theme_path = get_gtkrc(&format!("{}/.themes/{}", home_dir, theme_name));
+    }
+
     Ok(fs::read_to_string(theme_path)?)
+}
+
+fn get_gtkrc(path: &str) -> PathBuf {
+    let path_theme = Path::new(path);
+    path_theme.join("gtk-2.0").join("gtkrc")
 }
 
 fn parse_color_scheme(contents: &str) -> HashMap<String, String> {
